@@ -1,13 +1,21 @@
-# Sample Hardhat Project
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
+---
 
-Try running some of the following tasks:
+## 📜 Smart Contract
 
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
-```
+### `OrganChain.sol`
+
+The contract stores:
+- A cryptographic hash of recipient data
+- A trust/compliance score
+- A timestamp of allocation
+
+No personal or medical data is stored on-chain.
+
+---
+
+## 🚀 Common Commands
+
+### Compile the contract
+```sh
+npx hardhat compile
