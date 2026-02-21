@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OrganChain — Hospital Dashboard</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:#0c0c0c;
+  color:white;
+}
+
+header{
+  padding:20px 50px;
+  background:#111;
+  font-size:20px;
+  font-weight:bold;
+}
+
+.container{
+  max-width:700px;
+  margin:60px auto;
+  padding:0 20px;
+}
+
+h1{
+  margin-bottom:10px;
+}
+
+.subtitle{
+  color:#777;
+  margin-bottom:40px;
+}
+
+.card{
+  background:#111;
+  padding:25px;
+  border-radius:14px;
+  border:1px solid #222;
+  margin-bottom:20px;
+}
+
+label{
+  display:block;
+  margin-bottom:8px;
+  color:#aaa;
+  font-size:14px;
+}
+
+select{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  background:#1a1a1a;
+  border:1px solid #333;
+  color:white;
+  font-size:14px;
+}
+
+.organ-details{
+  margin-top:15px;
+  font-size:14px;
+  color:#bbb;
+}
+
+.organ-details strong{
+  color:white;
+}
+
+button{
+  width:100%;
+  padding:15px;
+  margin-top:20px;
+  border:none;
+  border-radius:10px;
+  font-weight:bold;
+  font-size:15px;
+  cursor:pointer;
+  background:white;
+  color:black;
+}
+
+button:disabled{
+  background:#333;
+  color:#777;
+  cursor:not-allowed;
+}
+
+.success{
+  margin-top:25px;
+  padding:20px;
+  border-radius:12px;
+  background:#111;
+  border:1px solid #66ff99;
+}
+
+.tx{
+  font-size:11px;
+  color:#555;
+  word-break:break-all;
+  margin-top:10px;
+}
+
+.qr{
+  margin-top:15px;
+  text-align:center;
+}
+
+footer{
+  text-align:center;
+  padding:30px;
+  color:#444;
+  font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  🏥 OrganChain — Hospital Dashboard
+</header>
+
+<div class="container">
+
+  <h1>Register Donor Organ</h1>
+  <div class="subtitle">
+    Register organ donation event — permanently recorded on blockchain.
+  </div>
+
+  <div class="card">
+
+    <label>Select Donor (From Hospital Records)</label>
+    <select id="donorSelect">
+      <option value="">Select donor...</option>
+      <option value="2847|D-2847|Kidney|O+|KEM Hospital Mumbai">
+        D-2847 | Kidney | O+ | KEM Hospital Mumbai
+      </option>
+      <option value="4421|D-4421|Liver|B+|AIIMS Delhi">
+        D-4421 | Liver | B+ | AIIMS Delhi
+      </option>
+      <option value="5532|D-5532|Heart|A+|Nair Hospital Mumbai">
+        D-5532 | Heart | A+ | Nair Hospital Mumbai
+      </option>
+    </select>
+
+    <div class="organ-details" id="organDetails"></div>
+
+    <button id="submitBtn" disabled>List Organ on Blockchain</button>
+
+  </div>
+
+  <div id="result"></div>
+
+</div>
+
+<footer>
+  Sensitive donor data is cryptographically hashed before blockchain storage.
+</footer>
+
+<script>
+const donorSelect = document.getElementById("donorSelect");
+const organDetails = document.getElementById("organDetails");
+const submitBtn = document.getElementById("submitBtn");
+const result = document.getElementById("result");
+
+let selectedData = null;
+
+donorSelect.addEventListener("change", function(){
+  if(!this.value){
+    organDetails.innerHTML = "";
+    submitBtn.disabled = true;
+    return;
+  }
+
+  const [organId, donorId, type, blood, hospital] = this.value.split("|");
+
+  selectedData = {organId, donorId, type, blood, hospital};
+
+  organDetails.innerHTML = `
+    <p>Organ ID: <strong>${organId}</strong></p>
+    <p>Type: <strong>${type}</strong></p>
+    <p>Blood Group: <strong>${blood}</strong></p>
+    <p>Hospital: <strong>${hospital}</strong></p>
+    <p style="color:#555;font-size:12px;margin-top:10px;">
+      ℹ Sensitive data will be hashed before blockchain storage
+    </p>
+  `;
+
+  submitBtn.disabled = false;
+});
+
+submitBtn.addEventListener("click", function(){
+
+  submitBtn.innerText = "Recording on Blockchain...";
+  submitBtn.disabled = true;
+
+  setTimeout(()=>{
+    const fakeTx = "0x" + Math.random().toString(16).substr(2,64);
+
+    result.innerHTML = `
+      <div class="success">
+        <strong style="color:#66ff99;">✅ Organ Listed Successfully</strong>
+        <div>Organ ID: <strong>${selectedData.organId}</strong></div>
+        <div class="tx">Transaction Hash: ${fakeTx}</div>
+
+        <div class="qr">
+          <p style="color:#ccc;margin-top:15px;">
+            Family QR Code (Demo)
+          </p>
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Organ-${selectedData.organId}" />
+        </div>
+      </div>
+    `;
+
+    submitBtn.innerText = "List Organ on Blockchain";
+
+  }, 2000);
+
+});
+</script>
+
+</body>
+</html>

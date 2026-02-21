@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Organ Journey Tracker</title>
+
+<style>
+body{
+  margin:0;
+  background:linear-gradient(120deg, #11131a 0%, #2f225a 100%);
+  font-family:Segoe UI, sans-serif;
+  color:white;
+  min-height:100vh;
+}
+
+.container{
+  max-width:700px;
+  margin:60px auto;
+  padding:30px;
+  background:rgba(18, 17, 29, 0.96);
+  border-radius:24px;
+  border:2px solid #343065;
+  box-shadow:0 8px 40px rgba(30,12,65,0.45);
+  position:relative;
+  overflow:hidden;
+}
+
+h1{
+  margin-bottom:8px;
+  background:linear-gradient(90deg,#50e6ff 10%, #5b7aff 55%, #68ffab 100%);
+  color:transparent;
+  background-clip:text;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing:2px;
+  font-size:2.1rem;
+}
+
+.subtitle{
+  color:#b1b0e6;
+  font-size:16px;
+  margin-bottom:28px;
+}
+
+input{
+  width:97%;
+  padding:16px;
+  border-radius:10px;
+  background:#1a1a2a;
+  border:1.5px solid #403d6b;
+  color:#c9d6ff;
+  font-size:16px;
+  outline:none;
+  margin-bottom:12px;
+  transition:border 0.2s;
+}
+input:focus {
+  border-color:#50e6ff;
+  background:#252151;
+}
+
+button{
+  width:100%;
+  padding:16px;
+  margin-top:10px;
+  border-radius:12px;
+  border:none;
+  font-weight:700;
+  font-size:17px;
+  cursor:pointer;
+  background:linear-gradient(90deg,#5b7aff 30%, #68ffab 100%);
+  color:#15172b;
+  box-shadow:0 1px 8px #27276940;
+  letter-spacing:1px;
+  transition:background 0.2s;
+}
+button:hover {
+  background:linear-gradient(90deg,#5b7aff 0%, #50e6ff 100%);
+}
+
+.timeline{
+  margin-top:38px;
+  display:flex;
+  flex-direction:column;
+  gap:35px;
+  position:relative;
+  z-index:2;
+}
+
+.event{
+  background:rgba(32,32,54,0.94);
+  padding:28px 26px 20px 60px;
+  border-radius:18px;
+  border:2px solid #333062;
+  position:relative;
+  transition:transform 0.4s cubic-bezier(.55,.12,.42,.97), box-shadow 0.36s;
+  box-shadow:0 6px 26px rgba(60,55,120,0.13);
+  opacity:0;
+  transform:translateY(22px) scale(0.98);
+  animation:slideInStep 0.7s forwards;
+}
+@keyframes slideInStep {
+  0% { opacity:0; transform:translateY(22px) scale(0.98);}
+  65% { opacity:1; transform:translateY(-8px) scale(1.04);}
+  100% { opacity:1; transform:translateY(0) scale(1);}
+}
+
+.event:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left:31px;
+  top:100%;
+  width:4px;
+  height:35px;
+  background:linear-gradient( #5b7aff 30%, #68ffab 100%);
+  border-radius:6px;
+  opacity:0.45;
+  z-index:0;
+}
+
+.event::before {
+  content: "";
+  position:absolute;
+  left:20px; top:28px;
+  width:24px; height:24px;
+  background:linear-gradient(135deg, #5b7aff 65%, #68ffab 100%);
+  border-radius:50%;
+  border:2px solid #fff3;
+  box-shadow:0 2px 8px #27276966;
+  z-index:5;
+}
+
+.flagged{
+  border:2px solid #ff4444 !important;
+  box-shadow:0 0 40px #ff444428, 0 3px 21px #822c2c38;
+}
+.flagged::before{
+  background:linear-gradient(135deg, #ff4444 60%, #ffb199 100%);
+  border-color: #fff9;
+}
+
+.trust-low{ color:#ff3d5a; font-weight:bold; }
+.trust-medium{ color:#ffbb36; font-weight:bold; }
+.trust-high{ color:#72ffb2; font-weight:bold; }
+
+.timestamp{
+  font-size:13.5px;
+  color:#aab3cf;
+  margin-top:8px;
+}
+
+.warning{
+  margin-top:13px;
+  padding:11px 16px;
+  background:rgba(255,68,68,0.17);
+  border:1.5px solid #ff4444;
+  border-radius:9px;
+  color:#ff6f6f;
+  font-size:14px;
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  animation:shakeWarn 0.5s;
+}
+@keyframes shakeWarn {
+  10% {transform:translateX(-2px);}
+  30% {transform:translateX(2px);}
+  60% {transform:translateX(-1px);}
+  100%{transform:translateX(0);}
+}
+
+.no-record{
+  margin-top:35px;
+  color:#76769b;
+  font-size:17px;
+  text-align:center;
+  background:rgba(45,45,75,0.85);
+  border-radius:13px;
+  padding:18px 0 10px 0;
+}
+.journey-progress{
+  width:2.5px;
+  background:linear-gradient(#5b7aff,#68ffab 75% );
+  position:absolute;
+  left:31px; top:90px; bottom:32px;
+  border-radius:6px;
+  z-index:0;
+  opacity:0.25;
+}
+
+.icon-step{
+  font-size:20px;margin-right:10px;vertical-align:middle;
+}
+.param-list{
+  margin-top:15px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:18px 40px;
+  font-size:15px;
+  color:#adc1d1;
+  line-height:1.5;
+  margin-bottom:2px;
+}
+.param-list span{
+  display:flex;align-items:center;gap:7px;
+}
+
+/* Glow effect for step icons */
+.glow-circle {
+  animation:pulseGlow 2s infinite;
+  filter:drop-shadow(0 0 8px #68ffab66);
+}
+@keyframes pulseGlow {
+  0% {box-shadow:0 0 0 0 #76fca455;}
+  60% {box-shadow:0 0 10px 8px #76fca411;}
+  100%{box-shadow:0 0 0 0 #76fca400;}
+}
+</style>
+
+<!-- Add icons via CDN for a more visual timeline -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>💙 Organ Journey Tracker</h1>
+<p class="subtitle">
+Every vital step—From donor consent to matching, allocation, and transplant—tracked and safely locked on Ethereum. <span style="color:#5b7aff;font-weight:bold;">Transparent history, beautiful journey.</span>
+</p>
+
+<input id="organInput" placeholder="Enter Organ ID (example: 2847 or 4421)" autocomplete="off" />
+
+<button onclick="trackOrgan()" id="journeyBtn">
+<span class="icon-step"><i class="bi bi-rocket-takeoff"></i></span>
+Audit Organ Journey
+</button>
+
+<div id="message"></div>
+<div style="position:relative;">
+  <div class="timeline" id="timeline"></div>
+</div>
+</div>
+
+<script>
+// OFFLINE DEMO DATA - Extended with richer parameters and steps
+const organDatabase = {
+
+  "2847": [
+    {
+      status: "Consent Received",
+      icon: "bi bi-person-check",
+      trustScore: 100,
+      timestamp: 1700000000,
+      anomalyFlagged: false,
+      location: "KEM Hospital, Mumbai",
+      handler: "Dr. R. Iyer",
+      organType: "Kidney",
+      bloodGroup: "O+",
+      chainHash: "0xadaecd3402...",
+      notes: "Donor consent signed digitally."
+    },
+    {
+      status: "Listed",
+      icon: "bi bi-clipboard2-heart",
+      trustScore: 98,
+      timestamp: 1700000900,
+      anomalyFlagged: false,
+      location: "KEM Hospital, Mumbai",
+      handler: "Nurse Megha K.",
+      organType: "Kidney",
+      bloodGroup: "O+",
+      chainHash: "0xb23dfe853d...",
+      notes: "Organ added to blockchain registry."
+    },
+    {
+      status: "Matching",
+      icon: "bi bi-search-heart",
+      trustScore: 92,
+      timestamp: 1700003600,
+      anomalyFlagged: false,
+      location: "Allocation Center",
+      handler: "Algorithm #17",
+      organType: "Kidney",
+      bloodGroup: "O+",
+      chainHash: "0x12a134023a...",
+      notes: "Automated matching with recipient pool."
+    },
+    {
+      status: "Matched",
+      icon: "bi bi-heart-pulse",
+      trustScore: 94,
+      timestamp: 1700004800,
+      anomalyFlagged: false,
+      location: "Allocation Center",
+      handler: "Dr. M. Joshi",
+      recipientID: "R-1729",
+      organType: "Kidney",
+      bloodGroup: "O+",
+      chainHash: "0x82245dff1a...",
+      notes: "Matched to R-1729. Notified for allocation."
+    },
+    {
+      status: "Dispatched",
+      icon: "bi bi-truck",
+      trustScore: 100,
+      timestamp: 1700007200,
+      anomalyFlagged: false,
+      location: "Ambulance 23, Mumbai",
+      handler: "Driver Vinod P.",
+      organType: "Kidney",
+      dispatchNotes: "ETA: 45 min",
+      chainHash: "0xf31b0546c9...",
+      notes: "Organ in transit to recipient hospital."
+    },
+    {
+      status: "Transplanted",
+      icon: "bi bi-patch-check-fill",
+      trustScore: 100,
+      timestamp: 1700010800,
+      anomalyFlagged: false,
+      location: "AIIMS Delhi",
+      handler: "Dr. S. Jain",
+      organType: "Kidney",
+      recipientID: "R-1729",
+      chainHash: "0xa2cf0d43c3...",
+      notes: "Transplant completed successfully."
+    }
+  ],
+
+  "4421": [
+    {
+      status: "Consent Received",
+      icon: "bi bi-person-check",
+      trustScore: 100,
+      timestamp: 1700100000,
+      anomalyFlagged: false,
+      location: "AIIMS Delhi",
+      handler: "Dr. A. Gupta",
+      organType: "Liver",
+      bloodGroup: "B+",
+      chainHash: "0x9aab323fbb...",
+      notes: "Family consent obtained."
+    },
+    {
+      status: "Listed",
+      icon: "bi bi-clipboard2-heart",
+      trustScore: 100,
+      timestamp: 1700100600,
+      anomalyFlagged: false,
+      location: "AIIMS Delhi",
+      handler: "Nurse Rita Das",
+      organType: "Liver",
+      bloodGroup: "B+",
+      chainHash: "0x89fe4329bb...",
+      notes: "Organ listed on blockchain registry."
+    },
+    {
+      status: "Matching",
+      icon: "bi bi-search-heart",
+      trustScore: 38,
+      timestamp: 1700103600,
+      anomalyFlagged: true,
+      location: "Allocation Center",
+      handler: "Algorithm #23",
+      organType: "Liver",
+      bloodGroup: "B+",
+      chainHash: "0x772asfe333...",
+      notes: "Unexpected score dip during matching."
+    },
+    {
+      status: "Matched",
+      icon: "bi bi-heart-pulse",
+      trustScore: 31,
+      timestamp: 1700103700,
+      anomalyFlagged: true,
+      location: "Allocation Center",
+      handler: "Dr. M. Kaur",
+      recipientID: "R-1102",
+      organType: "Liver",
+      bloodGroup: "B+",
+      chainHash: "0xabcde12322...",
+      notes: "Flagged for review: algorithm override."
+    }
+  ]
+};
+
+// Utility to delay for step-by-step animation
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function trackOrgan(){
+  const organId = document.getElementById("organInput").value.trim();
+  const timeline = document.getElementById("timeline");
+  const message = document.getElementById("message");
+  timeline.innerHTML = "";
+  message.innerHTML = "";
+
+  if(!organId){
+    alert("Please enter an Organ ID");
+    return;
+  }
+
+  const history = organDatabase[organId];
+
+  if(!history){
+    message.innerHTML = "<p class='no-record'><i class='bi bi-emoji-frown'></i> No records found for this Organ ID.</p>";
+    return;
+  }
+
+  // Step-by-step animation, add step delays and pop-in effect
+  for (let i = 0; i < history.length; i++){
+    const event = history[i];
+    let trustClass = "trust-low";
+    if(event.trustScore > 70)
+      trustClass = "trust-high";
+    else if(event.trustScore > 40)
+      trustClass = "trust-medium";
+
+    // Icons get extra glow for completed steps, warning if flagged
+    let iconHtml = `<span class="icon-step">` +
+      `<i class="${event.icon || 'bi bi-info-circle'}${event.anomalyFlagged ? ' flagged' : ' glow-circle'}"></i>` +
+      `</span>`;
+
+    // Build param details
+    let paramsHtml = `<div class="param-list">`;
+    if(event.organType) paramsHtml += `<span><i class="bi bi-droplet"></i> <b>Organ:</b> ${event.organType}</span>`;
+    if(event.bloodGroup) paramsHtml += `<span><i class="bi bi-tint"></i> <b>Blood:</b> ${event.bloodGroup}</span>`;
+    if(event.location) paramsHtml += `<span><i class="bi bi-geo-alt"></i> <b>Location:</b> ${event.location}</span>`;
+    if(event.handler) paramsHtml += `<span><i class="bi bi-person"></i> <b>Handler:</b> ${event.handler}</span>`;
+    if(event.recipientID) paramsHtml += `<span><i class="bi bi-person-badge"></i> <b>Recipient:</b> ${event.recipientID}</span>`;
+    if(event.dispatchNotes) paramsHtml += `<span><i class="bi bi-truck"></i> ${event.dispatchNotes}</span>`;
+    paramsHtml += `</div>`;
+
+    // Add chain hash line
+    let chainHtml = event.chainHash ?
+        `<div style="font-size:13px;color:#5b7aff8f;margin-top:7px;">
+        <i class="bi bi-link-45deg"></i>
+        Hash: <span style="font-family:monospace;">${event.chainHash}</span>
+        </div>` : '';
+
+    // Step notes
+    let notesHtml = event.notes ?
+      `<div style="margin-top:5px;color:#b3d4ee;font-size:14px;">${event.notes}</div>` : '';
+
+    const div = document.createElement("div");
+    div.className = "event";
+    if(event.anomalyFlagged) div.classList.add("flagged");
+
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="display:flex;align-items:center;font-size:18px;">
+          ${iconHtml}
+          <span style="font-weight:bold; font-size:17px; letter-spacing:1px;">
+            ${event.status}
+          </span>
+        </div>
+        <span class="${trustClass}" style="font-size:16px;letter-spacing:1px;">
+          ${event.trustScore}/100
+        </span>
+      </div>
+      ${paramsHtml}
+      <div class="timestamp">
+        <i class="bi bi-clock"></i>
+        <span style="margin-left:3px;">
+          ${new Date(event.timestamp * 1000).toLocaleString("en-IN")}
+        </span>
+      </div>
+      ${chainHtml}
+      ${notesHtml}
+    `;
+
+    if(event.anomalyFlagged){
+      div.innerHTML += `
+        <div class="warning">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          🚨 This step has been <b>flagged for review</b>
+        </div>
+      `;
+    }
+
+    div.style.animationDelay = `${i*0.22+0.1}s`;
+    timeline.appendChild(div);
+    // Animate each step; wait a bit before showing next
+    // Small delay for step-by-step pop-in
+    await delay(350);
+  }
+}
+
+document.getElementById("organInput").addEventListener("keydown", function(event){
+  if(event.key === 'Enter'){
+    document.getElementById("journeyBtn").click();
+  }
+});
+</script>
+
+</body>
+</html>
