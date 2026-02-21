@@ -137,3 +137,17 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Hardhat build outputs
+artifacts/
+cache/
+
+# ML models
+*.pkl
+
+# React build
+frontend/build/
+
+# OS files
+.DS_Store
+Thumbs.db
