@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 /* ─────────────────────────────────────────────
    GLOBAL STYLES injected as a <style> tag
@@ -728,8 +728,6 @@ const TrackingPortal = ({ setPage, showToast }) => {
     </div>
   );
 };
-
-const var_white = "#ffffff";
 
 /* ─────────────────────────────────────
    NOTTO PORTAL
